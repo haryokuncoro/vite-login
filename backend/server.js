@@ -172,7 +172,7 @@ app.post('/api/auth/login', async (req, res) => {
     return res.json({ token, user: { id: user.id, email: user.email } });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: 'Server error'});
   }
 });
 
@@ -186,8 +186,12 @@ app.post('/api/auth/verify-2fa', (req, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     const now = Math.floor(Date.now() / 1000);
-    if (!user.two_fa_code || !user.two_fa_expires || user.two_fa_code !== code || user.two_fa_expires < now) {
-      return res.status(400).json({ message: 'Invalid or expired code' });
+    if (!user.two_fa_expires || user.two_fa_expires < now) {
+      return res.status(400).json({ message: 'Expired code' });
+    }
+
+     if (!user.two_fa_code || !user.two_fa_expires || user.two_fa_code !== code || user.two_fa_expires < now) {
+      return res.status(400).json({ message: 'Invalid code' });
     }
 
     // clear pending 2FA and issue token
